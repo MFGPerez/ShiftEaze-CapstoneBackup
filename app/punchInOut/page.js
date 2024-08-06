@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
-import { getAuth } from "firebase/auth";
-import Image from "next/image";
+import React, { useState, useEffect, Suspense } from 'react';
+import { getAuth } from 'firebase/auth';
+import Image from 'next/image';
 import {
   getFirestore,
   collection,
@@ -11,18 +11,18 @@ import {
   updateDoc,
   doc,
   getDoc,
-} from "firebase/firestore";
-import { useRouter, useSearchParams } from "next/navigation";
-import { firebaseApp } from "../../utils/firebase";
-import Link from "next/link";
-import WorkersDashNavBar from "@components/workersDashNavBar";
+} from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { firebaseApp } from '../../utils/firebase';
+import Link from 'next/link';
+import WorkersDashNavBar from '@components/workersDashNavBar';
 
 const PunchInOutComponent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const managerId = searchParams.get("managerId");
-  const firstName = searchParams.get("firstName");
-  const lastName = searchParams.get("lastName");
+  const managerId = searchParams.get('managerId');
+  const firstName = searchParams.get('firstName');
+  const lastName = searchParams.get('lastName');
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -33,23 +33,26 @@ const PunchInOutComponent = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [breakTime, setBreakTime] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [popupMessage, setPopupMessage] = useState(null);
 
   useEffect(() => {
+    if (managerId) {
+      localStorage.setItem('managerId', managerId);
+    }
     const fetchWorker = async () => {
       const user = auth.currentUser;
       if (!user) {
-        setError("User not signed in.");
+        setError('User not signed in.');
         setLoading(false);
         return;
       }
 
       try {
         const workersQuery = query(
-          collection(db, "managers", managerId, "workers"),
-          where("firstName", "==", firstName),
-          where("lastName", "==", lastName)
+          collection(db, 'managers', managerId, 'workers'),
+          where('firstName', '==', firstName),
+          where('lastName', '==', lastName)
         );
         const workersSnapshot = await getDocs(workersQuery);
 
@@ -68,11 +71,11 @@ const PunchInOutComponent = () => {
             setIsOnBreak(true);
           }
         } else {
-          setError("Worker not found.");
+          setError('Worker not found.');
         }
         setLoading(false);
       } catch (error) {
-        setError("Error fetching worker: " + error.message);
+        setError('Error fetching worker: ' + error.message);
         setLoading(false);
       }
     };
@@ -99,26 +102,26 @@ const PunchInOutComponent = () => {
     setPunchInTime(punchInDate);
     const user = auth.currentUser;
     if (!user) {
-      setError("User not signed in.");
+      setError('User not signed in.');
       return;
     }
 
     try {
       const workerDocRef = doc(
         db,
-        "managers",
+        'managers',
         managerId,
-        "workers",
+        'workers',
         `${firstName}_${lastName}`
       );
       await updateDoc(workerDocRef, { punchInTime: punchInDate });
       showPopupMessage(
-        "Punch in Successful!",
-        "You have been punched in. Have a good shift!",
-        "green"
+        'Punch in Successful!',
+        'You have been punched in. Have a good shift!',
+        'green'
       );
     } catch (error) {
-      setError("Error punching in: " + error.message);
+      setError('Error punching in: ' + error.message);
     }
   };
 
@@ -126,20 +129,20 @@ const PunchInOutComponent = () => {
     const punchOutTime = new Date();
     const user = auth.currentUser;
     if (!user) {
-      setError("User not signed in.");
+      setError('User not signed in.');
       return;
     }
 
     const durationMs = punchOutTime - punchInTime;
     const hoursWorked = durationMs / (1000 * 60 * 60);
-    const date = new Date().toISOString().split("T")[0];
+    const date = new Date().toISOString().split('T')[0];
 
     try {
       const workerDocRef = doc(
         db,
-        "managers",
+        'managers',
         managerId,
-        "workers",
+        'workers',
         `${firstName}_${lastName}`
       );
       const docSnap = await getDoc(workerDocRef);
@@ -167,12 +170,12 @@ const PunchInOutComponent = () => {
       setBreakTime(0);
       setIsOnBreak(false);
       showPopupMessage(
-        "Punch out Successful!",
-        "You have been punched out. Have a good day!",
-        "red"
+        'Punch out Successful!',
+        'You have been punched out. Have a good day!',
+        'red'
       );
     } catch (error) {
-      setError("Error punching out: " + error.message);
+      setError('Error punching out: ' + error.message);
     }
   };
 
@@ -180,7 +183,7 @@ const PunchInOutComponent = () => {
     const breakStartDate = new Date();
     setBreakStartTime(breakStartDate);
     setIsOnBreak(true);
-    showPopupMessage("Started Break, Enjoy!", "", "yellow");
+    showPopupMessage('Started Break, Enjoy!', '', 'yellow');
   };
 
   const handleEndBreak = async () => {
@@ -192,18 +195,18 @@ const PunchInOutComponent = () => {
 
     const user = auth.currentUser;
     if (!user) {
-      setError("User not signed in.");
+      setError('User not signed in.');
       return;
     }
 
-    const date = new Date().toISOString().split("T")[0];
+    const date = new Date().toISOString().split('T')[0];
 
     try {
       const workerDocRef = doc(
         db,
-        "managers",
+        'managers',
         managerId,
-        "workers",
+        'workers',
         `${firstName}_${lastName}`
       );
       const docSnap = await getDoc(workerDocRef);
@@ -221,9 +224,9 @@ const PunchInOutComponent = () => {
         workData[date].workHours - workData[date].breakHours;
 
       await updateDoc(workerDocRef, { workData, breakStartTime: null });
-      showPopupMessage("Ended Break, Welcome Back!", "", "yellow");
+      showPopupMessage('Ended Break, Welcome Back!', '', 'yellow');
     } catch (error) {
-      setError("Error ending break: " + error.message);
+      setError('Error ending break: ' + error.message);
     }
   };
 
@@ -255,7 +258,8 @@ const PunchInOutComponent = () => {
           <>
             <div className="bg-gray-100 p-4 rounded-t-lg shadow-lg text-center">
               <h2 className="text-black text-3xl font-comfortaa font-bold mb-5">
-                Welcome, {worker ? worker.firstName : "Worker"} {worker ? worker.lastName : "Worker"}
+                Welcome, {worker ? worker.firstName : 'Worker'}{' '}
+                {worker ? worker.lastName : 'Worker'}
               </h2>
             </div>
             <div className="bg-black opacity-95 p-10 rounded-b-lg shadow-lg w-full text-black">
@@ -269,7 +273,7 @@ const PunchInOutComponent = () => {
               </div>
               <div className="mb-8 text-center">
                 <Image
-                  src={worker?.profilePictureUrl || "/default-profile.png"}
+                  src={worker?.profilePictureUrl || '/default-profile.png'}
                   alt="Profile"
                   width={100}
                   height={100}
@@ -318,6 +322,12 @@ const PunchInOutComponent = () => {
                 >
                   View Worked Hours
                 </Link>
+                <Link
+                  href="/signin"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md inline-block shadow-md hover:bg-gray-600 border-2 border-transparent hover:border-gray-400"
+                >
+                  Logout
+                </Link>
               </div>
             </div>
           </>
@@ -325,21 +335,21 @@ const PunchInOutComponent = () => {
         {popupMessage && (
           <div
             className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-md ${
-              popupMessage.color === "green"
-                ? "bg-green-500 border-2 border-transparent border-green-400"
-                : popupMessage.color === "red"
-                ? "bg-red-500 border-2 border-transparent border-red-400"
-                : "bg-yellow-500 border-2 border-transparent border-yellow-400"
+              popupMessage.color === 'green'
+                ? 'bg-green-500 border-2 border-transparent border-green-400'
+                : popupMessage.color === 'red'
+                ? 'bg-red-500 border-2 border-transparent border-red-400'
+                : 'bg-yellow-500 border-2 border-transparent border-yellow-400'
             }`}
           >
             <div className="bg-white p-6 rounded-lg shadow-lg text-center">
               <h3
                 className={`text-lg font-bold mb-4 ${
-                  popupMessage.color === "green"
-                    ? "text-green-500"
-                    : popupMessage.color === "red"
-                    ? "text-red-500"
-                    : "text-yellow-500"
+                  popupMessage.color === 'green'
+                    ? 'text-green-500'
+                    : popupMessage.color === 'red'
+                    ? 'text-red-500'
+                    : 'text-yellow-500'
                 }`}
               >
                 {popupMessage.title}

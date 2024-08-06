@@ -10,26 +10,17 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai';
 import * as XLSX from 'xlsx';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { firebaseApp } from 'utils/firebase';
 import { useSearchParams } from 'next/navigation';
 
-/**
- * HorizontalCalendar Component
- * 
- * This component represents a horizontal calendar with drag-and-drop functionality for scheduling blocks.
- * It manages state for the current date, schedule blocks, selected date, job title, and mode (admin or worker).
- * The component also provides functionality to import and export schedule data to/from Excel files.
- * 
- * @returns {JSX.Element} The rendered HorizontalCalendar component
- */
 const HorizontalCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [blocks, setBlocks] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedJobTitle, setSelectedJobTitle] = useState('');
   const [mode, setMode] = useState('admin');
-  const [setIsButtonVisible] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
   const hideButtonTimeout = useRef(null);
   const { workers } = useWorkers();
   const topGridRef = useRef(null);
@@ -39,7 +30,6 @@ const HorizontalCalendar = () => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
 
-  // Set mode based on URL search parameters
   useEffect(() => {
     const view = searchParams.get('view');
     if (view === 'worker') {
@@ -49,14 +39,12 @@ const HorizontalCalendar = () => {
     }
   }, [searchParams]);
 
-  // Load blocks for the selected job title and current month
   useEffect(() => {
     if (selectedJobTitle) {
       loadBlocksForCurrentMonthAndJobTitle(selectedJobTitle);
     }
   }, [currentDate, selectedJobTitle]);
 
-  // Sync scrolling between top and bottom grids
   const handleTopScroll = () => {
     if (topGridRef.current && bottomGridRef.current) {
       const scrollLeft = topGridRef.current.scrollLeft;
@@ -88,7 +76,6 @@ const HorizontalCalendar = () => {
     };
   }, [topGridRef, bottomGridRef]);
 
-  // Handle date selection
   const handleDateClick = (date) => {
     setSelectedDate((prevDate) =>
       prevDate && format(date, "yyyy-MM-dd") === format(prevDate, "yyyy-MM-dd")
@@ -97,7 +84,6 @@ const HorizontalCalendar = () => {
     );
   };
 
-  // Navigate to the next or previous month
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
@@ -108,26 +94,40 @@ const HorizontalCalendar = () => {
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Add a new block to the grid
-  const addBlockToGrid = (newBlock) => {
+  const addBlockToGrid = async (newBlock) => {
     setBlocks((prevBlocks) => {
       const updatedBlocks = [...prevBlocks, newBlock];
-      saveBlocksToLocalStorage(updatedBlocks);
+      saveBlocksToFirebase(updatedBlocks);
       return updatedBlocks;
     });
   };
 
-  // Delete a block from the grid
-  const deleteBlock = (id) => {
-    setBlocks((prevBlocks) => {
-      const updatedBlocks = prevBlocks.filter((block) => block.id !== id);
-      saveBlocksToLocalStorage(updatedBlocks);
-      return updatedBlocks;
-    });
+  const deleteBlock = async (id) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const managerDocRef = mode === 'worker' ? doc(db, 'managers', searchParams.get('managerId')) : doc(db, 'managers', user.uid);
+      const scheduleCollectionRef = collection(managerDocRef, 'schedule');
+      const querySnapshot = await getDocs(scheduleCollectionRef);
+
+      querySnapshot.forEach(async (doc) => {
+        if (doc.data().id === id) {
+          await deleteDoc(doc.ref);
+        }
+      });
+
+      setBlocks((prevBlocks) => {
+        const updatedBlocks = prevBlocks.filter((block) => block.id !== id);
+        saveBlocksToFirebase(updatedBlocks);
+        return updatedBlocks;
+      });
+    } catch (error) {
+      console.error("Error deleting block: ", error);
+    }
   };
 
-  // Move a block within the grid
-  const moveBlock = (id, row, col) => {
+  const moveBlock = async (id, row, col) => {
     setBlocks((prevBlocks) => {
       const updatedBlocks = prevBlocks.map((block) =>
         block.id === id
@@ -147,30 +147,59 @@ const HorizontalCalendar = () => {
             }
           : block
       );
-      saveBlocksToLocalStorage(updatedBlocks);
+      saveBlocksToFirebase(updatedBlocks);
       return updatedBlocks;
     });
   };
 
-  // Save blocks to local storage
-  const saveBlocksToLocalStorage = (blocks) => {
-    const key = `${selectedJobTitle}-${format(currentDate, 'yyyy-MM')}`;
-    localStorage.setItem(`scheduleBlocks-${key}`, JSON.stringify(blocks));
+  const saveBlocksToFirebase = async (blocks) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const managerDocRef = mode === 'worker' ? doc(db, 'managers', searchParams.get('managerId')) : doc(db, 'managers', user.uid);
+    const scheduleCollectionRef = collection(managerDocRef, 'schedule');
+
+    try {
+      const querySnapshot = await getDocs(scheduleCollectionRef);
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      for (const block of blocks) {
+        await addDoc(scheduleCollectionRef, {
+          ...block,
+          startDate: block.startDate.toISOString(),
+          endDate: block.endDate.toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error("Error saving blocks to Firebase: ", error);
+    }
   };
 
-  // Load blocks from local storage for the current month and job title
-  const loadBlocksForCurrentMonthAndJobTitle = (jobTitle) => {
-    const key = `${jobTitle}-${format(currentDate, 'yyyy-MM')}`;
-    const storedBlocks = JSON.parse(localStorage.getItem(`scheduleBlocks-${key}`)) || [];
-    const parsedBlocks = storedBlocks.map(block => ({
-      ...block,
-      startDate: new Date(block.startDate),
-      endDate: new Date(block.endDate),
-    }));
-    setBlocks(parsedBlocks);
+  const loadBlocksForCurrentMonthAndJobTitle = async (jobTitle) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const managerDocRef = mode === 'worker' ? doc(db, 'managers', searchParams.get('managerId')) : doc(db, 'managers', user.uid);
+    const scheduleCollectionRef = collection(managerDocRef, 'schedule');
+
+    try {
+      const querySnapshot = await getDocs(scheduleCollectionRef);
+      const blocks = querySnapshot.docs
+        .map((doc) => doc.data())
+        .filter((block) => block.jobTitle === jobTitle && block.startDate.startsWith(format(currentDate, 'yyyy-MM')))
+        .map((block) => ({
+          ...block,
+          startDate: new Date(block.startDate),
+          endDate: new Date(block.endDate),
+        }));
+      setBlocks(blocks);
+    } catch (error) {
+      console.error("Error loading blocks from Firebase: ", error);
+    }
   };
 
-  // Export schedule blocks to Excel
   const exportToExcel = () => {
     const formatTime = (time) => {
       const [hour, minute] = time.split(':');
@@ -201,7 +230,6 @@ const HorizontalCalendar = () => {
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Handle file upload for importing schedule blocks from Excel
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -243,7 +271,7 @@ const HorizontalCalendar = () => {
 
         setBlocks((prevBlocks) => {
           const updatedBlocks = [...prevBlocks, ...uniqueBlocks];
-          saveBlocksToLocalStorage(updatedBlocks);
+          saveBlocksToFirebase(updatedBlocks);
           return updatedBlocks;
         });
       } else {
@@ -254,13 +282,11 @@ const HorizontalCalendar = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  // Validate the imported data structure
   const validateImportedData = (data) => {
     const requiredColumns = ['DisplayRow', 'ProfilePicture', 'FirstName', 'LastName', 'BlockType', 'StartTime', 'EndTime', 'StartDate', 'EndDate', 'GridRow'];
     return data.every(item => requiredColumns.every(column => item.hasOwnProperty(column)));
   };
 
-  // Show buttons on mouse movement and hide them after a timeout
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (
@@ -387,7 +413,7 @@ const HorizontalCalendar = () => {
                     block.id === id ? { ...block, startDate, endDate } : block
                   );
                   setBlocks(updatedBlocks);
-                  saveBlocksToLocalStorage(updatedBlocks);
+                  saveBlocksToFirebase(updatedBlocks);
                 }}
                 mode={mode}
               />
