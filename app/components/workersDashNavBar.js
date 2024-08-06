@@ -38,7 +38,6 @@ const WorkersDashNavBar = () => {
         <div className="text-2xl font-rockSalt mr-auto">ShiftEaze!</div>
         <div className="flex space-x-6 items-center">
           <Link href={`/calendar?view=worker&managerId=${managerId}`} className="hover:text-blue-400 text-lg font-comfortaa">Calendar</Link>
-          <Link href={`/contactManager`} className="hover:text-blue-400 text-lg font-comfortaa">Contact Manager</Link>
           <Link href={`/requestLeave?managerId=${managerId}&firstName=${auth.currentUser?.displayName?.split(' ')[0]}&lastName=${auth.currentUser?.displayName?.split(' ')[1]}`} className="hover:text-blue-400 text-lg font-comfortaa">Request Leave</Link>
           <Link
             href="/signin"
