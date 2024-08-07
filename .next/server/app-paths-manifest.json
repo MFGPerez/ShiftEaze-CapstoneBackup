@@ -1,5 +1,8 @@
 {
-  "/signup/page": "app/signup/page.js",
-  "/page": "app/page.js",
-  "/signin/page": "app/signin/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/calendar/page": "app/calendar/page.js",
+  "/signin/page": "app/signin/page.js",
+  "/trackworkhistory/page": "app/trackworkhistory/page.js",
+  "/analytics/page": "app/analytics/page.js"
 }
