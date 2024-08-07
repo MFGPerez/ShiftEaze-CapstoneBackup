@@ -7,20 +7,38 @@ import { firebaseApp } from "utils/firebase";
 import { FaTrashAlt } from 'react-icons/fa';
 import { AiOutlineClose } from 'react-icons/ai';
 
-const MANAGER_ID = "6I3LZoawvIXm621XYJiavWT6bx12";
-
 const WorkerMsgDisplay = () => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [managerId, setManagerId] = useState("");
 
   useEffect(() => {
+    const fetchManagerId = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const managerDocRef = doc(db, "managers", user.uid);
+        const managerDocSnap = await getDoc(managerDocRef);
+        if (managerDocSnap.exists()) {
+          setManagerId(managerDocSnap.id);
+        } else {
+          console.error("Manager document not found");
+        }
+      }
+    };
+
+    fetchManagerId();
+  }, [auth, db]);
+
+  useEffect(() => {
+    if (!managerId) return;
+
     const fetchMessages = async () => {
       setLoading(true);
       try {
-        const q = query(collection(db, "leaveRequests"), where("managerId", "==", MANAGER_ID));
+        const q = query(collection(db, "leaveRequests"), where("managerId", "==", managerId));
         const querySnapshot = await getDocs(q);
         const messagesList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -35,7 +53,7 @@ const WorkerMsgDisplay = () => {
     };
 
     fetchMessages();
-  }, [auth, db]);
+  }, [managerId, db]);
 
   const handleDelete = async (id) => {
     try {
@@ -87,10 +105,9 @@ const WorkerMsgDisplay = () => {
                   className="relative bg-blue-100 py-3 px-6 rounded-lg shadow hover:bg-blue-300 transition-colors border-2 border-transparent hover:border-blue-600 cursor-pointer"
                   onClick={() => handleView(msg)}
                 >
-                  <h2 className="text-2xl font-comfortaa font-semibold text-blue-900 mb-1">{msg.workerName} - Leave Req</h2>
-                  <p className="text-black font-nixie text-sm">{msg.notes}</p>
+                  <h2 className="text-2xl font-comfortaa font-semibold text-blue-900 mb-1">{msg.workerName} - Msg</h2>
+                  <p className="text-black font-nixie text-sm">{msg.message}</p>
                   <p className="text-black font-nixie text-sm">Email: {msg.email}</p>
-                  <p className="text-black font-nixie text-sm">Dates: {formatDateRange(msg.selectedDates)}</p>
                   <p className="text-black font-nixie text-sm">Time: {msg.time}</p>
                   <FaTrashAlt
                     className="absolute top-2 right-2 text-red-400 hover:text-red-700 cursor-pointer"
@@ -116,12 +133,11 @@ const WorkerMsgDisplay = () => {
               <AiOutlineClose size={24} />
             </button>
             <div className="text-black">
-              <h2 className="text-3xl font-comfortaa font-bold mb-4">{selectedMessage.workerName} - Leave Req</h2>
+              <h2 className="text-3xl font-comfortaa font-bold mb-4">{selectedMessage.workerName} - Msg</h2>
               <div className="mt-4">
-                <p className="text-2xl font-nixie font-semibold mb-2">Message: {selectedMessage.notes}</p>
+                <p className="text-2xl font-nixie font-semibold mb-2">Message: {selectedMessage.message}</p>
               </div>
               <p className="text-xl font-comfortaa mb-1">Email: {selectedMessage.email}</p>
-              <p className="text-xl font-comfortaa mb-1">Dates: {formatDateRange(selectedMessage.selectedDates)}</p>
               <p className="text-xl font-comfortaa mb-1">Time: {selectedMessage.time}</p>
             </div>
           </div>
