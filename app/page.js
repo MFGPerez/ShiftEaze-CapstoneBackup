@@ -119,7 +119,7 @@ const App = () => {
           </p>
         </div>
         <div className="w-6/12 h-screen flex flex-col justify-center items-center bg-white bg-opacity-20 p-8 rounded-lg shadow-lg">
-          <h2 className="text-white text-4xl font-comfortaa font-bold mb-8">Manager Sign In</h2>
+          <h2 className="text-white text-4xl font-comfortaa font-bold mb-8">Sign In</h2>
           <form
             onSubmit={handleEmailSignIn}
             className="flex flex-col items-center w-full max-w-xs"
