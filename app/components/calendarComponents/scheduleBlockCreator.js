@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { parseISO, format, startOfMonth, endOfMonth } from 'date-fns';
 import { AiOutlineClose } from 'react-icons/ai';
-import { getFirestore, collection, getDocs, doc, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, addDoc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { firebaseApp } from 'utils/firebase';
 import { useWorkers } from './workersContext';
@@ -114,7 +114,7 @@ const ScheduleBlockCreator = ({
     };
 
     addBlockToGrid(newBlock);
-    saveBlockToFirebase(newBlock);
+    await saveBlockToFirebase(newBlock);
     resetForm();
     setShowDeleteAll(true);
   };

@@ -94,10 +94,10 @@ const HorizontalCalendar = () => {
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const addBlockToGrid = async (newBlock) => {
+  const addBlockToGrid = (newBlock) => {
     setBlocks((prevBlocks) => {
       const updatedBlocks = [...prevBlocks, newBlock];
-      saveBlocksToFirebase(updatedBlocks);
+      saveBlockToFirebase(newBlock);
       return updatedBlocks;
     });
   };
@@ -119,7 +119,6 @@ const HorizontalCalendar = () => {
 
       setBlocks((prevBlocks) => {
         const updatedBlocks = prevBlocks.filter((block) => block.id !== id);
-        saveBlocksToFirebase(updatedBlocks);
         return updatedBlocks;
       });
     } catch (error) {
@@ -147,12 +146,12 @@ const HorizontalCalendar = () => {
             }
           : block
       );
-      saveBlocksToFirebase(updatedBlocks);
+      saveBlockToFirebase(updatedBlocks.find(block => block.id === id));
       return updatedBlocks;
     });
   };
 
-  const saveBlocksToFirebase = async (blocks) => {
+  const saveBlockToFirebase = async (block) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -161,11 +160,20 @@ const HorizontalCalendar = () => {
 
     try {
       const querySnapshot = await getDocs(scheduleCollectionRef);
-      querySnapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
+      let docRef = null;
+      querySnapshot.forEach((doc) => {
+        if (doc.data().id === block.id) {
+          docRef = doc.ref;
+        }
       });
 
-      for (const block of blocks) {
+      if (docRef) {
+        await updateDoc(docRef, {
+          ...block,
+          startDate: block.startDate.toISOString(),
+          endDate: block.endDate.toISOString(),
+        });
+      } else {
         await addDoc(scheduleCollectionRef, {
           ...block,
           startDate: block.startDate.toISOString(),
@@ -173,7 +181,7 @@ const HorizontalCalendar = () => {
         });
       }
     } catch (error) {
-      console.error("Error saving blocks to Firebase: ", error);
+      console.error("Error saving block to Firebase: ", error);
     }
   };
 
@@ -413,7 +421,7 @@ const HorizontalCalendar = () => {
                     block.id === id ? { ...block, startDate, endDate } : block
                   );
                   setBlocks(updatedBlocks);
-                  saveBlocksToFirebase(updatedBlocks);
+                  saveBlockToFirebase(updatedBlocks.find(block => block.id === id));
                 }}
                 mode={mode}
               />
