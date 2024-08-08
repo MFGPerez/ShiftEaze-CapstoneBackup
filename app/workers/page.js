@@ -1,5 +1,20 @@
 "use client";
 
+/**
+ * Workers Component
+ *
+ * This component displays a list of workers, allowing the manager to search, filter by position,
+ * add, edit, delete, and view detailed information about each worker. It also provides functionality
+ * to export selected workers' data to a CSV file.
+ *
+ * Key features:
+ * - Fetch and display a list of workers from Firestore.
+ * - Search and filter workers by position.
+ * - Add, edit, delete, and view worker details.
+ * - Export selected workers to a CSV file.
+ */
+
+// Import necessary libraries and components
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import {

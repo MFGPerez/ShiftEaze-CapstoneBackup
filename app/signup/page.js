@@ -1,5 +1,6 @@
 "use client";
 
+// Import necessary libraries and components
 import React, { useState } from "react";
 import {
   getAuth,
@@ -24,8 +25,9 @@ import DOMPurify from 'dompurify';
 // Initialize Firestore
 const db = getFirestore(firebaseApp);
 
+// Main Signup component
 const Signup = () => {
-  // State variables
+  // State variables for form inputs and error messages
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,34 +35,40 @@ const Signup = () => {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const router = useRouter();
 
-  // Handle Email Sign-Up
+  // Function to handle email sign-up
   const handleEmailSignup = async (e) => {
     e.preventDefault();
     const auth = getAuth(firebaseApp);
     try {
-      // Sanitize inputs
+      // Sanitize inputs to prevent XSS attacks
       const sanitizedEmail = DOMPurify.sanitize(email);
       const sanitizedPassword = DOMPurify.sanitize(password);
 
+      // Create a new user with the provided email and password
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         sanitizedEmail,
         sanitizedPassword
       );
       const user = userCredential.user;
+
+      // Send email verification to the newly created user
       await sendEmailVerification(user);
       setConfirmationMessage(
         "Verification email sent. Please check your inbox and verify your email before logging in."
       );
 
+      // Create a new document for the manager in Firestore
       const userDocRef = doc(db, "managers", user.uid);
       await setDoc(userDocRef, {
         email: user.email,
       });
 
+      // Clear the form inputs
       setEmail("");
       setPassword("");
     } catch (error) {
+      // Handle sign-up errors
       console.error("Error during email sign-up:", error);
       if (error.code === "auth/email-already-in-use") {
         setError("This email is already in use. Please use a different email.");
@@ -70,7 +78,7 @@ const Signup = () => {
     }
   };
 
-  // Toggle Password Visibility
+  // Function to toggle the visibility of the password input
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };

@@ -1,4 +1,19 @@
 "use client";
+/**
+ * WorkerHours Component
+ * 
+ * The WorkerHours component allows managers to view and filter a worker's work hours based on a selected date range.
+ * It fetches the worker's data from Firebase Firestore and displays the hours worked, break time, and paid hours 
+ * on a calendar. The user can select a start and end date to filter the work hours displayed.
+ * 
+ * Key features:
+ * - Date range filtering to display relevant work data.
+ * - Display of worked hours, break time, and paid hours on a calendar.
+ * - Integration with Firebase Firestore for data retrieval.
+ * - Custom styled calendar for an enhanced user interface.
+ * 
+ * @returns {JSX.Element} The WorkerHours component
+ */
 
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";

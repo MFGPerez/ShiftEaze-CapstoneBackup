@@ -1,3 +1,22 @@
+/**
+ * Analytics Component
+ * 
+ * The Analytics component provides a comprehensive view of workforce data, allowing managers to filter 
+ * work data by date range and view summary statistics for each worker. It fetches data from Firebase Firestore 
+ * and calculates total hours worked, hours worked in the current month, and hours worked in the current week. 
+ * The component also allows for easy date range filtering and displays the results in a tabular format.
+ * 
+ * Key features:
+ * - Fetches worker and work history data from Firestore.
+ * - Provides date range filtering to view work data within specific periods.
+ * - Calculates and displays total hours worked, hours worked this month, and hours worked this week.
+ * - Displays summary statistics for each worker in a tabular format.
+ * - Integrates a responsive and user-friendly interface with a navigation bar and footer.
+ * 
+ * @returns {JSX.Element} The Analytics component
+ */
+
+// Import necessary libraries and components
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -5,16 +24,8 @@ import { getAuth, signOut } from "firebase/auth";
 import { getFirestore, collection, query, getDocs, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { firebaseApp } from "../../utils/firebase"; // Adjust the import path according to your project structure
-import AnalyticsNavBar from "@components/analyticsNavBar"; // use this 
+import AnalyticsNavBar from "@components/analyticsNavBar"; // Use this component for navigation
 
-/**
- * Analytics Component
- * 
- * This component fetches and displays worker and work data, allowing the user to filter
- * the data by date range and view summary statistics.
- * 
- * @returns {JSX.Element} The Analytics component
- */
 const Analytics = () => {
   const router = useRouter();
   const auth = getAuth(firebaseApp);
@@ -26,6 +37,7 @@ const Analytics = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // Fetch workers and their associated work data on component mount
   useEffect(() => {
     fetchWorkersAndData();
   }, [auth, db]);

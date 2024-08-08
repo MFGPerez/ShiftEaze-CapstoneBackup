@@ -1,3 +1,20 @@
+/**
+ * Page Component
+ * 
+ * The Page component is responsible for rendering the main calendar interface where managers can view and manage
+ * worker schedules. It incorporates a horizontal calendar and provides the necessary context for managing worker data 
+ * and job titles. The component handles authentication, fetches worker data from Firestore, and updates the state accordingly.
+ * 
+ * Key features:
+ * - Displays a horizontal calendar for managing worker schedules.
+ * - Fetches and displays worker data from Firestore, categorized by job titles.
+ * - Manages user authentication state, ensuring only authenticated users can access the data.
+ * - Provides a navigation bar specific to the calendar view.
+ * 
+ * @returns {JSX.Element} The Page component
+ */
+
+// Import necessary libraries and components
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,14 +25,6 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { firebaseApp } from 'utils/firebase';
 import CalendarNavBar from "@components/calendarComponents/calendarNavBar";
 
-/**
- * Page Component
- * 
- * This component is responsible for displaying the horizontal calendar and managing the state
- * related to workers and job titles. It fetches worker data from Firestore and handles user authentication.
- * 
- * @returns {JSX.Element} The Page component
- */
 const Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,6 +70,7 @@ const Page = () => {
       }
     };
 
+    // Check for authentication state and fetch workers accordingly
     onAuthStateChanged(auth, (user) => {
       if (user) {
         fetchWorkers();
@@ -71,6 +81,7 @@ const Page = () => {
     });
   }, [auth, db]);
 
+  // Render loading or error states if applicable
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 

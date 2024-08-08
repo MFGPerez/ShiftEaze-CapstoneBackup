@@ -1,4 +1,25 @@
+/**
+ * AddWorker Component
+ * 
+ * The AddWorker component provides a user interface for adding new workers to the system. 
+ * It includes a form for entering worker details such as name, position, contact information, 
+ * and start date. The component also supports uploading a profile picture and validating input 
+ * data like postal codes. Upon successful submission, the worker's data is saved to Firebase Firestore, 
+ * and the profile picture is uploaded to Firebase Storage.
+ * 
+ * Key features:
+ * - Form for adding a new worker with fields for personal and contact information.
+ * - Validates postal code format before submission.
+ * - Supports profile picture upload and stores it in Firebase Storage.
+ * - Saves worker data to Firestore and provides user feedback on success or error.
+ * - Allows users to reset the form to its initial state.
+ * 
+ * @returns {JSX.Element} The AddWorker component
+ */
+
+// Import necessary libraries and components
 "use client";
+
 import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
@@ -31,6 +52,9 @@ const AddWorker = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState("");
 
+  /**
+   * Handles the form submission for adding a new worker
+   */
   const handleAddWorker = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -91,12 +115,18 @@ const AddWorker = () => {
     }
   };
 
+  /**
+   * Handles profile picture file selection
+   */
   const handleProfilePictureChange = (e) => {
     if (e.target.files[0]) {
       setProfilePicture(e.target.files[0]);
     }
   };
 
+  /**
+   * Resets the form fields to their initial state
+   */
   const handleReset = () => {
     setFirstName("");
     setLastName("");

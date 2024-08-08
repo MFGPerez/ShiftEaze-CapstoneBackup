@@ -6,6 +6,14 @@ import { getAuth } from "firebase/auth";
 import { firebaseApp } from 'utils/firebase';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
+/**
+ * WorkersDashNavBar Component
+ * 
+ * This component renders a navigation bar for workers. It includes links to the calendar,
+ * leave request page, and a logout button. The user's profile picture is also displayed if available.
+ * 
+ * @returns {JSX.Element} The rendered WorkersDashNavBar component
+ */
 const WorkersDashNavBar = () => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
@@ -13,11 +21,13 @@ const WorkersDashNavBar = () => {
   const [managerId, setManagerId] = useState("");
 
   useEffect(() => {
+    // Retrieve manager ID from local storage if available
     const storedManagerId = localStorage.getItem('managerId');
     if (storedManagerId) {
       setManagerId(storedManagerId);
     }
 
+    // Fetch the user's profile picture from Firestore
     const fetchUserProfilePic = async () => {
       const user = auth.currentUser;
       if (user) {

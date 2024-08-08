@@ -1,15 +1,26 @@
 "use client";
-import React from 'react';
-import AboutUsNavBar from '@components/aboutUsNavBar';
-
 /**
  * AboutUs Component
  * 
- * This component renders the About Us page for the ShiftEaze application.
- * It includes the AboutUsNavBar component for navigation and displays information about the company.
+ * This component renders the About Us page for the ShiftEaze application. It provides an overview of the project,
+ * the team behind it, and the goals of the application. The component includes the AboutUsNavBar for navigation
+ * and displays detailed information about the development journey, technology stack, and the purpose of the ShiftEaze
+ * platform. The content is styled to be visually appealing and is designed to resonate with both potential users and
+ * stakeholders.
+ * 
+ * Key features:
+ * - Displays a brief introduction and background of the ShiftEaze project.
+ * - Introduces the development team and their motivations.
+ * - Highlights the technology stack used in the project (Next.js, React, Firebase).
+ * - Explains the functionality and advantages of the application for the restaurant and fast food industry.
+ * - Uses responsive design to ensure compatibility across different devices.
  * 
  * @returns {JSX.Element} The AboutUs component
  */
+
+import React from 'react';
+import AboutUsNavBar from '@components/aboutUsNavBar';
+
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-300 via-blue-600 to-blue-800 flex flex-col">

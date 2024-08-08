@@ -1,3 +1,20 @@
+/**
+ * NewDashboard Component
+ *
+ * The NewDashboard component serves as the main dashboard for managers in the application, 
+ * providing a comprehensive overview of the current date and time, as well as key features such as 
+ * worker management and message displays. This dashboard is designed to be the central hub for 
+ * managers, allowing them to interact with various components like viewing workers and checking messages.
+ *
+ * Key features:
+ * - Displays the current date and time prominently at the top.
+ * - Includes a navigation bar for easy access to different sections of the dashboard.
+ * - Provides a section for displaying worker-related features, such as worker listings and management tools.
+ * - Integrates a message display component for viewing messages sent by workers.
+ * - Features a responsive and visually appealing design with a gradient background and centralized content.
+ */
+
+// Import necessary libraries and components
 "use client";
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
@@ -11,6 +28,7 @@ import WorkerMsgDisplay from "@components/dashBoardComponents/workerMsgDisplay";
 
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 
+// Initialize Firestore
 const db = getFirestore(firebaseApp);
 
 const NewDashboard = () => {
@@ -18,6 +36,7 @@ const NewDashboard = () => {
   const router = useRouter();
   const auth = getAuth(firebaseApp); // Initialize auth with firebaseApp
 
+  // Fetch manager details on component mount
   useEffect(() => {
     const fetchManagerDetails = async () => {
       const user = auth.currentUser;

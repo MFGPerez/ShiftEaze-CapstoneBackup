@@ -1,11 +1,24 @@
 "use client";
+/**
+ * Support Component
+ * 
+ * The Support component renders the support page for the ShiftEaze application. It provides users with a contact form 
+ * to reach out to the support team for any assistance or inquiries. The page is styled to be consistent with the overall 
+ * theme of the application, featuring a background gradient and a clean, user-friendly interface. The form includes fields 
+ * for the user's name, email, and message, ensuring that the support team receives all necessary information to assist the user effectively.
+ * 
+ * Key features:
+ * - A responsive and accessible contact form that users can fill out to request support.
+ * - A navigation bar at the top of the page for easy navigation.
+ * - A visually appealing layout with clear instructions and labels for each form field.
+ * - Integration with the ShiftEaze theme, ensuring a cohesive user experience across the application.
+ * 
+ * @returns {JSX.Element} The Support component
+ */
 
 import React from "react";
 import NavBar from "@/components/navBarLogin";
 
-/**
- * Support component renders the support page with a contact form.
- */
 const Support = () => {
   return (
     <>

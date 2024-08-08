@@ -1,4 +1,5 @@
 "use client";
+
 import React from 'react';
 import ScheduleBlockCreator from './scheduleBlockCreator';
 import WorkersDisplay from './workersDisplay';

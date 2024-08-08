@@ -1,5 +1,6 @@
 "use client";
 
+// Import necessary libraries and components
 import React, { useState } from "react";
 import {
   getAuth,
@@ -25,7 +26,9 @@ import DOMPurify from 'dompurify';
 // Initialize Firestore
 const db = getFirestore(firebaseApp);
 
+// Main App component
 const App = () => {
+  // State variables for form inputs and error messages
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,33 +37,35 @@ const App = () => {
   const [resetEmailError, setResetEmailError] = useState("");
   const router = useRouter();
 
-  // Toggle Password Visibility
+  // Function to toggle the visibility of the password input
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  // Handle Email Sign-In
+  // Function to handle email sign-in
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     const auth = getAuth(firebaseApp);
 
     try {
-      // Sanitize inputs
+      // Sanitize inputs to prevent XSS attacks
       const sanitizedEmail = DOMPurify.sanitize(email);
       const sanitizedPassword = DOMPurify.sanitize(password);
 
-      // Try to sign in as a manager first
+      // Attempt to sign in with the provided credentials
       const userCredential = await signInWithEmailAndPassword(
         auth,
         sanitizedEmail,
         sanitizedPassword
       );
       const user = userCredential.user;
+
+      // Check if the signed-in user is a manager
       const managerDocRef = doc(db, "managers", user.uid);
       const managerDoc = await getDoc(managerDocRef);
 
       if (managerDoc.exists()) {
-        // Redirect to manager dashboard
+        // Redirect to manager dashboard if the user is a manager
         router.push("../dashboard");
       } else {
         // Check if the user is a worker
@@ -82,7 +87,7 @@ const App = () => {
 
             if (workerData.passcode === sanitizedPassword) {
               foundWorker = true;
-              // Redirect to PunchInOut page
+              // Redirect to PunchInOut page if the user is a worker
               router.push(
                 `/punchInOut?managerId=${managerId}&firstName=${workerData.firstName}&lastName=${workerData.lastName}`
               );
@@ -91,23 +96,27 @@ const App = () => {
           }
         }
 
+        // Display error if the user is neither a manager nor a worker
         if (!foundWorker) {
           setError("Invalid Email or Password, please try again.");
         }
       }
     } catch (error) {
+      // Handle sign-in errors
       setError("Error signing in, please try again.");
       console.error("Error signing in: ", error);
     }
   };
 
-  // Handle Password Reset
+  // Function to handle password reset
   const handlePasswordReset = async () => {
     const auth = getAuth(firebaseApp);
     try {
+      // Send password reset email
       await sendPasswordResetEmail(auth, email);
       setResetEmailSent(true);
     } catch (error) {
+      // Handle password reset errors
       setResetEmailError("Error sending password reset email.");
     }
   };

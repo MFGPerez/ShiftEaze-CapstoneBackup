@@ -1,5 +1,6 @@
 "use client";
 
+// Import necessary libraries and components
 import React, { useState, useEffect, Suspense } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, query, getDocs, addDoc, Timestamp, where } from "firebase/firestore";
@@ -11,7 +12,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import styled from "styled-components";
 
-// Custom styled-components
+// Custom styled-components for layout and styling
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
@@ -91,19 +92,25 @@ const CustomCalendar = styled(Calendar)`
   }
 `;
 
+// Main component for requesting leave
 const RequestLeaveComponent = () => {
+  // Router and search parameters for navigation and query handling
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Firebase authentication and Firestore database initialization
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const user = auth.currentUser;
 
+  // State variables for form inputs and status messages
   const [selectedDates, setSelectedDates] = useState([]);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
   const [managerId, setManagerId] = useState("");
   const [workerName, setWorkerName] = useState("");
 
+  // Fetch worker data on component mount
   useEffect(() => {
     const fetchWorkerData = async () => {
       if (!user) {
@@ -112,9 +119,11 @@ const RequestLeaveComponent = () => {
       }
 
       try {
+        // Query managers collection in Firestore
         const managersQuery = query(collection(db, "managers"));
         const managersSnapshot = await getDocs(managersQuery);
 
+        // Iterate through managers to find the current user as a worker
         for (const managerDoc of managersSnapshot.docs) {
           const workersQuery = query(
             collection(db, "managers", managerDoc.id, "workers"),
@@ -136,15 +145,18 @@ const RequestLeaveComponent = () => {
     fetchWorkerData();
   }, [auth, db, user]);
 
+  // Handle date selection from calendar
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
   };
 
+  // Handle leave request form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("Sending request...");
 
     try {
+      // Add a new leave request document to Firestore
       await addDoc(collection(db, "leaveRequests"), {
         workerName: workerName,
         email: user.email,
@@ -211,6 +223,7 @@ const RequestLeaveComponent = () => {
   );
 };
 
+// Main component wrapped with Suspense for lazy loading
 const RequestLeave = () => (
   <Suspense fallback={<div>Loading...</div>}>
     <RequestLeaveComponent />

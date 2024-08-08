@@ -2,9 +2,22 @@ import React, { useState } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 
+/**
+ * DashHamburgerMenu Component
+ * 
+ * This component provides a hamburger menu for quick access to various sections of the dashboard.
+ * The menu toggles between open and closed states, displaying a list of navigation options for 
+ * managing workers, scheduling, viewing work history, and accessing workforce analytics.
+ * 
+ * @returns {JSX.Element} The rendered DashHamburgerMenu component
+ */
+
 const DashHamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  /**
+   * Toggles the menu's open and closed states.
+   */
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };

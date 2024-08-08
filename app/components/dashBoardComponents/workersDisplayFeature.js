@@ -1,11 +1,17 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, query, getDocs } from "firebase/firestore";
 import { firebaseApp } from "utils/firebase"; // Adjust the import path according to your project structure
 import { AiOutlineClose } from "react-icons/ai";
 
-// Function to send SMS
+/**
+ * Function to send an SMS to a worker.
+ * 
+ * @param {string} phoneNumber - The phone number to send the SMS to.
+ * @param {string} message - The message content to send.
+ */
 const sendSMS = async (phoneNumber, message) => {
   try {
     const response = await fetch('/send-sms', {
@@ -26,6 +32,17 @@ const sendSMS = async (phoneNumber, message) => {
   }
 };
 
+/**
+ * ContactWorkerPopup Component
+ * 
+ * Displays a popup with options to contact the selected worker. 
+ * The user can choose to send a message to the worker.
+ * 
+ * @param {Object} worker - The worker object containing worker details.
+ * @param {Function} onClose - Function to close the popup.
+ * @param {Function} onSendMsg - Function to open the message sending popup.
+ * @returns {JSX.Element} The rendered ContactWorkerPopup component.
+ */
 const ContactWorkerPopup = ({ worker, onClose, onSendMsg }) => (
   <div className="absolute top-0 left-0 mt-15 bg-black p-4 rounded-lg shadow-lg w-64">
     <div className="bg-white text-black p-2 rounded-t-lg flex justify-between items-center w-full">
@@ -44,6 +61,18 @@ const ContactWorkerPopup = ({ worker, onClose, onSendMsg }) => (
   </div>
 );
 
+/**
+ * SendMsgPopup Component
+ * 
+ * Displays a popup for composing and sending a message to a selected worker.
+ * 
+ * @param {Object} worker - The worker object containing worker details.
+ * @param {Function} onClose - Function to close the popup.
+ * @param {string} message - The message content to send.
+ * @param {Function} setMessage - Function to update the message content.
+ * @param {Function} handleSendMsg - Function to handle the sending of the message.
+ * @returns {JSX.Element} The rendered SendMsgPopup component.
+ */
 const SendMsgPopup = ({ worker, onClose, message, setMessage, handleSendMsg }) => (
   <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl relative">
@@ -75,6 +104,15 @@ const SendMsgPopup = ({ worker, onClose, message, setMessage, handleSendMsg }) =
   </div>
 );
 
+/**
+ * WorkersDisplayFeature Component
+ * 
+ * This component displays a list of workers and allows the manager to select a worker, 
+ * and send them a message via SMS. The manager can select a worker from the list, and 
+ * upon selection, a popup provides the option to send a message.
+ * 
+ * @returns {JSX.Element} The rendered WorkersDisplayFeature component.
+ */
 const WorkersDisplayFeature = () => {
   const [workers, setWorkers] = useState([]);
   const [selectedWorker, setSelectedWorker] = useState(null);

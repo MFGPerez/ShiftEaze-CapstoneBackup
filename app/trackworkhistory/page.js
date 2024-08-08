@@ -1,4 +1,21 @@
 "use client";
+/**
+ * TrackWorkHistory Component
+ * 
+ * The TrackWorkHistory component renders a page where managers can track the work history of their workers.
+ * It allows users to select a worker and filter their work history by date range. The component fetches the list
+ * of workers and their respective work history from Firebase Firestore, providing a summary of total hours worked,
+ * break time, and paid hours. The data is displayed in a table, making it easy for managers to review and manage
+ * work records.
+ * 
+ * Key features:
+ * - Worker selection dropdown to choose which worker's history to view.
+ * - Date range filtering to refine the work history displayed.
+ * - Summary statistics including total hours worked, break time, and paid hours.
+ * - Responsive design with a visually consistent theme matching the ShiftEaze application.
+ * 
+ * @returns {JSX.Element} The TrackWorkHistory component
+ */
 
 import React, { useState, useEffect } from "react";
 import { getAuth, signOut } from "firebase/auth";
@@ -13,10 +30,6 @@ import { useRouter } from "next/navigation";
 import { firebaseApp } from "../../utils/firebase"; // Adjust the import path according to your project structure
 import PageNavBar from "@components/pageNavBar";
 
-/**
- * TrackWorkHistory component renders a page for tracking the work history of workers.
- * It fetches the list of workers and their respective work history based on selected date range.
- */
 const TrackWorkHistory = () => {
   const router = useRouter();
   const auth = getAuth(firebaseApp);

@@ -16,11 +16,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/signin/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/signin/page.js"
-    ],
     "/calendar/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -31,20 +26,36 @@
       "static/chunks/main-app.js",
       "static/chunks/app/workers/page.js"
     ],
-    "/addWorker/page": [
+    "/signin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/addWorker/page.js"
+      "static/chunks/app/signin/page.js"
     ],
-    "/editWorker/page": [
+    "/punchInOut/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/editWorker/page.js"
+      "static/chunks/app/punchInOut/page.js"
     ],
-    "/signup/page": [
+    "/requestLeave/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/signup/page.js"
+      "static/css/app/requestLeave/page.css",
+      "static/chunks/app/requestLeave/page.js"
+    ],
+    "/supportPage/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/supportPage/page.js"
+    ],
+    "/FAQs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/FAQs/page.js"
+    ],
+    "/aboutUs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/aboutUs/page.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",

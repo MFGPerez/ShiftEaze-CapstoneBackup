@@ -7,6 +7,17 @@ import { firebaseApp } from "utils/firebase";
 import { FaTrashAlt } from 'react-icons/fa';
 import { AiOutlineClose } from 'react-icons/ai';
 
+/**
+ * WorkerMsgDisplay Component
+ * 
+ * This component fetches and displays worker messages, particularly leave requests, 
+ * for a manager. It shows the list of messages, allows viewing details of each message, 
+ * and enables the manager to delete messages. The component also handles loading state 
+ * and error cases.
+ * 
+ * @returns {JSX.Element} The rendered WorkerMsgDisplay component
+ */
+
 const WorkerMsgDisplay = () => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
@@ -15,6 +26,9 @@ const WorkerMsgDisplay = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [managerId, setManagerId] = useState("");
 
+  /**
+   * Fetches the manager's ID when the component mounts.
+   */
   useEffect(() => {
     const fetchManagerId = async () => {
       const user = auth.currentUser;
@@ -32,6 +46,9 @@ const WorkerMsgDisplay = () => {
     fetchManagerId();
   }, [auth, db]);
 
+  /**
+   * Fetches the messages for the manager based on the managerId.
+   */
   useEffect(() => {
     if (!managerId) return;
 
@@ -55,6 +72,11 @@ const WorkerMsgDisplay = () => {
     fetchMessages();
   }, [managerId, db]);
 
+  /**
+   * Deletes a message from Firestore and removes it from the state.
+   * 
+   * @param {string} id - The ID of the message to delete.
+   */
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "leaveRequests", id));
@@ -64,19 +86,39 @@ const WorkerMsgDisplay = () => {
     }
   };
 
+  /**
+   * Formats a Firestore timestamp into a readable date string.
+   * 
+   * @param {Date} date - The date to format.
+   * @returns {string} - The formatted date string.
+   */
   const formatTimestamp = (date) => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
     return new Intl.DateTimeFormat('en-US', options).format(date);
   };
 
+  /**
+   * Handles the click event to view the details of a message.
+   * 
+   * @param {Object} message - The message object to view.
+   */
   const handleView = (message) => {
     setSelectedMessage(message);
   };
 
+  /**
+   * Closes the message detail popup.
+   */
   const handleClosePopup = () => {
     setSelectedMessage(null);
   };
 
+  /**
+   * Formats a date range into a readable string.
+   * 
+   * @param {Array} dates - The array of dates to format.
+   * @returns {string} - The formatted date range string.
+   */
   const formatDateRange = (dates) => {
     if (!dates || dates.length === 0) return "";
     if (dates.length === 2) {

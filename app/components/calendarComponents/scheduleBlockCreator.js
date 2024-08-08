@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import { parseISO, format, startOfMonth, endOfMonth } from 'date-fns';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -7,6 +8,25 @@ import { getAuth } from 'firebase/auth';
 import { firebaseApp } from 'utils/firebase';
 import { useWorkers } from './workersContext';
 import { useSearchParams } from 'next/navigation';
+
+/**
+ * ScheduleBlockCreator Component
+ * 
+ * The ScheduleBlockCreator component allows users to create and manage schedule blocks for workers.
+ * Users can select block types (Full Day, Off Day, Vacation), assign them to specific workers, and
+ * specify the date range and time for the blocks. The component also includes functionality to delete
+ * all blocks for a selected job title.
+ * 
+ * @param {Function} addBlockToGrid - Function to add a block to the calendar grid
+ * @param {Array} existingBlocks - List of existing schedule blocks
+ * @param {Date} currentMonth - The currently selected month
+ * @param {String} mode - The current mode of the calendar ('admin' or 'worker')
+ * @param {String} selectedJobTitle - The selected job title for which blocks are being created
+ * @param {Function} setSelectedJobTitle - Function to set the selected job title
+ * @param {Function} setBlocks - Function to update the list of blocks
+ * 
+ * @returns {JSX.Element} The rendered ScheduleBlockCreator component
+ */
 
 const ScheduleBlockCreator = ({
   addBlockToGrid,

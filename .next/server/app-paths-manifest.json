@@ -1,10 +1,12 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/signin/page": "app/signin/page.js",
-  "/workers/page": "app/workers/page.js",
-  "/addWorker/page": "app/addWorker/page.js",
   "/calendar/page": "app/calendar/page.js",
-  "/editWorker/page": "app/editWorker/page.js",
-  "/signup/page": "app/signup/page.js"
+  "/workers/page": "app/workers/page.js",
+  "/signin/page": "app/signin/page.js",
+  "/punchInOut/page": "app/punchInOut/page.js",
+  "/requestLeave/page": "app/requestLeave/page.js",
+  "/supportPage/page": "app/supportPage/page.js",
+  "/FAQs/page": "app/FAQs/page.js",
+  "/aboutUs/page": "app/aboutUs/page.js"
 }

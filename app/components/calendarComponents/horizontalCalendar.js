@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, parse } from 'date-fns';
 import CalendarGrid from './calendarGrid';
@@ -13,6 +14,18 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firebaseApp } from 'utils/firebase';
 import { useSearchParams } from 'next/navigation';
+
+/**
+ * HorizontalCalendar Component
+ * 
+ * The HorizontalCalendar component is a dynamic calendar interface designed for scheduling
+ * and managing worker shifts. It supports various operations such as adding, moving, deleting,
+ * and exporting/importing schedule blocks. The calendar grid allows users to visualize the schedule 
+ * across the days of the month, with additional controls for navigating between months, and 
+ * exporting/importing schedule data in Excel format.
+ * 
+ * @returns {JSX.Element} The rendered HorizontalCalendar component
+ */
 
 const HorizontalCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());

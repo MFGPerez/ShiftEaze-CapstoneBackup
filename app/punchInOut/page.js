@@ -1,4 +1,20 @@
 "use client";
+/**
+ * PunchInOutComponent
+ *
+ * This component allows workers to manage their work shifts by providing functionalities for punching in, punching out, 
+ * and tracking break times. The component integrates with Firebase Firestore to store and retrieve the worker's shift data, 
+ * ensuring accurate time tracking and calculations for worked hours, break times, and paid hours. It displays real-time updates 
+ * and provides user feedback through a clean and intuitive interface, including popup messages that confirm successful actions.
+ * 
+ * Key features:
+ * - Punch In/Out functionality with real-time tracking of worked hours.
+ * - Break management with the ability to start and end breaks, recording break duration.
+ * - Display of the current time and date, worker's profile information, and shift summary.
+ * - Integration with Firebase for data persistence and retrieval.
+ */
+
+// Import necessary libraries and components
 import React, { useState, useEffect, Suspense } from 'react';
 import { getAuth } from 'firebase/auth';
 import Image from 'next/image';
@@ -17,14 +33,22 @@ import { firebaseApp } from '../../utils/firebase';
 import Link from 'next/link';
 import WorkersDashNavBar from '@components/workersDashNavBar';
 
+// Main component for handling punch-in, punch-out, and break times
 const PunchInOutComponent = () => {
+  // Router and search parameters for navigation and query handling
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Retrieve managerId, firstName, and lastName from query parameters
   const managerId = searchParams.get('managerId');
   const firstName = searchParams.get('firstName');
   const lastName = searchParams.get('lastName');
+
+  // Firebase authentication and Firestore database initialization
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
+
+  // State variables for tracking time, worker data, and UI state
   const [currentTime, setCurrentTime] = useState(new Date());
   const [worker, setWorker] = useState(null);
   const [punchInTime, setPunchInTime] = useState(null);
@@ -36,10 +60,12 @@ const PunchInOutComponent = () => {
   const [error, setError] = useState('');
   const [popupMessage, setPopupMessage] = useState(null);
 
+  // Fetch worker data from Firestore on component mount
   useEffect(() => {
     if (managerId) {
-      localStorage.setItem('managerId', managerId);
+      localStorage.setItem('managerId', managerId); // Save managerId in localStorage
     }
+
     const fetchWorker = async () => {
       const user = auth.currentUser;
       if (!user) {
@@ -49,6 +75,7 @@ const PunchInOutComponent = () => {
       }
 
       try {
+        // Query Firestore for the worker's data based on managerId, firstName, and lastName
         const workersQuery = query(
           collection(db, 'managers', managerId, 'workers'),
           where('firstName', '==', firstName),
@@ -61,6 +88,7 @@ const PunchInOutComponent = () => {
           const workerData = workerDoc.data();
           setWorker(workerData);
 
+          // Set punch-in and break start times if they exist
           if (workerData.punchInTime) {
             setPunchInTime(workerData.punchInTime.toDate());
             setElapsedTime(new Date() - workerData.punchInTime.toDate());
@@ -83,6 +111,7 @@ const PunchInOutComponent = () => {
     fetchWorker();
   }, [auth, db, managerId, firstName, lastName]);
 
+  // Update the current time and calculate elapsed work and break times
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -92,11 +121,12 @@ const PunchInOutComponent = () => {
       if (isOnBreak) {
         setBreakTime(new Date() - breakStartTime);
       }
-    }, 1000);
+    }, 1000); // Update every second
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // Clean up the interval on component unmount
   }, [punchInTime, isOnBreak, breakStartTime]);
 
+  // Handle punch-in action
   const handlePunchIn = async () => {
     const punchInDate = new Date();
     setPunchInTime(punchInDate);
@@ -107,6 +137,7 @@ const PunchInOutComponent = () => {
     }
 
     try {
+      // Update Firestore with punch-in time
       const workerDocRef = doc(
         db,
         'managers',
@@ -125,6 +156,7 @@ const PunchInOutComponent = () => {
     }
   };
 
+  // Handle punch-out action
   const handlePunchOut = async () => {
     const punchOutTime = new Date();
     const user = auth.currentUser;
@@ -134,10 +166,11 @@ const PunchInOutComponent = () => {
     }
 
     const durationMs = punchOutTime - punchInTime;
-    const hoursWorked = durationMs / (1000 * 60 * 60);
-    const date = new Date().toISOString().split('T')[0];
+    const hoursWorked = durationMs / (1000 * 60 * 60); // Convert milliseconds to hours
+    const date = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
 
     try {
+      // Update Firestore with punch-out time and calculate work hours
       const workerDocRef = doc(
         db,
         'managers',
@@ -156,7 +189,7 @@ const PunchInOutComponent = () => {
         paidHours: 0,
       };
       workData[date].workHours += hoursWorked;
-      workData[date].breakHours += breakTime / (1000 * 60 * 60);
+      workData[date].breakHours += breakTime / (1000 * 60 * 60); // Convert break time to hours
       workData[date].paidHours =
         workData[date].workHours - workData[date].breakHours;
 
@@ -179,6 +212,7 @@ const PunchInOutComponent = () => {
     }
   };
 
+  // Handle start break action
   const handleStartBreak = () => {
     const breakStartDate = new Date();
     setBreakStartTime(breakStartDate);
@@ -186,10 +220,11 @@ const PunchInOutComponent = () => {
     showPopupMessage('Started Break, Enjoy!', '', 'yellow');
   };
 
+  // Handle end break action
   const handleEndBreak = async () => {
     const breakEndTime = new Date();
     const breakDurationMs = breakEndTime - breakStartTime;
-    const breakHours = breakDurationMs / (1000 * 60 * 60);
+    const breakHours = breakDurationMs / (1000 * 60 * 60); // Convert milliseconds to hours
 
     setIsOnBreak(false);
 
@@ -199,9 +234,10 @@ const PunchInOutComponent = () => {
       return;
     }
 
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
 
     try {
+      // Update Firestore with end break time and calculate break hours
       const workerDocRef = doc(
         db,
         'managers',
@@ -230,6 +266,7 @@ const PunchInOutComponent = () => {
     }
   };
 
+  // Format milliseconds to a time string (e.g., "1h 30m 45s")
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
     const seconds = totalSeconds % 60;
@@ -239,11 +276,12 @@ const PunchInOutComponent = () => {
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
+  // Display a popup message for a short duration
   const showPopupMessage = (title, message, color) => {
     setPopupMessage({ title, message, color });
     setTimeout(() => {
       setPopupMessage(null);
-    }, 3000); // 3 seconds
+    }, 3000); // Display the message for 3 seconds
   };
 
   return (
@@ -351,6 +389,7 @@ const PunchInOutComponent = () => {
   );
 };
 
+// Main component wrapped with Suspense for lazy loading
 const PunchInOut = () => (
   <Suspense fallback={<div>Loading...</div>}>
     <PunchInOutComponent />

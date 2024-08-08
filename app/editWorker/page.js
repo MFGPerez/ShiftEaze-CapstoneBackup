@@ -1,3 +1,20 @@
+/**
+ * EditWorker Component
+ *
+ * This component allows managers to edit a worker's information, including personal details, job position, 
+ * contact information, and profile picture. The component fetches the worker's existing data from Firebase 
+ * Firestore and allows the manager to update it. The updates are validated and then saved back to Firestore.
+ * It also provides feedback on the success or failure of the update operation, and includes form reset functionality.
+ * 
+ * Key features:
+ * - Fetches and displays worker details for editing, including name, position, contact information, and address.
+ * - Allows the manager to upload and update the worker's profile picture, with real-time image upload to Firebase Storage.
+ * - Validates input fields, including the format of the PIN and postal code, ensuring data integrity.
+ * - Provides user feedback through success messages and error handling.
+ * - Includes a form reset functionality to revert changes to their original values.
+ */
+
+// Import necessary libraries and components
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -35,6 +52,7 @@ const EditWorker = () => {
   const [pinError, setPinError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Fetch the worker's existing data from Firestore when the component mounts
   useEffect(() => {
     const fetchWorker = async () => {
       const user = auth.currentUser;
@@ -75,6 +93,7 @@ const EditWorker = () => {
     fetchWorker();
   }, [auth, db, workerId]);
 
+  // Handle worker data update
   const handleUpdateWorker = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
@@ -132,6 +151,7 @@ const EditWorker = () => {
     }
   };
 
+  // Handle PIN input change and validation
   const handlePinChange = (e) => {
     setPin(e.target.value);
     if (e.target.value.length === 4 && !isNaN(e.target.value)) {
@@ -139,12 +159,14 @@ const EditWorker = () => {
     }
   };
 
+  // Handle profile picture selection and update
   const handleProfilePictureChange = (e) => {
     if (e.target.files[0]) {
       setProfilePicture(e.target.files[0]);
     }
   };
 
+  // Reset form fields to their original values
   const handleReset = () => {
     setFirstName(worker.firstName);
     setLastName(worker.lastName);

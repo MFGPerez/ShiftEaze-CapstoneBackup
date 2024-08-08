@@ -8,6 +8,16 @@ import { firebaseApp } from 'utils/firebase';
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import DashHamburgerMenu from './dashHamburgerMenu';
 
+/**
+ * NavBarDashboard Component
+ * 
+ * This component renders the navigation bar for the dashboard. It includes links to 
+ * various sections like Home, Workers, and Calendar. The component also displays 
+ * the manager's profile picture and name, and a logout button.
+ * 
+ * @returns {JSX.Element} The rendered NavBarDashboard component
+ */
+
 const db = getFirestore(firebaseApp);
 
 const NavBarDashboard = () => {
@@ -16,6 +26,9 @@ const NavBarDashboard = () => {
   const [profilePic, setProfilePic] = useState("");
   const [managerName, setManagerName] = useState("");
 
+  /**
+   * Fetches the user's profile picture and manager name from Firebase when the component mounts.
+   */
   useEffect(() => {
     const fetchUserProfilePic = () => {
       const user = auth.currentUser;
@@ -33,6 +46,9 @@ const NavBarDashboard = () => {
     fetchUserProfilePic();
   }, [auth]);
 
+  /**
+   * Handles the logout process, signs the user out of Firebase, and redirects to the sign-in page.
+   */
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
@@ -62,11 +78,11 @@ const NavBarDashboard = () => {
           )}
           <button
             onClick={handleLogout}
-            className=" font-comfortaa bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors border-2 border-transparent hover:border-red-400"
+            className="font-comfortaa bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors border-2 border-transparent hover:border-red-400"
           >
             Logout
           </button>
-          <DashHamburgerMenu/>
+          <DashHamburgerMenu />
         </div>
       </div>
     </nav>

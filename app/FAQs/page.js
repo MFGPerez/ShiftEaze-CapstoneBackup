@@ -1,5 +1,20 @@
-"use client";
+/**
+ * FAQs Component
+ *
+ * This component is designed to display a list of Frequently Asked Questions (FAQs) with a search functionality 
+ * that allows users to filter the questions based on their input. The component leverages React's state management 
+ * to dynamically update the list of displayed FAQs based on the search query. It includes a navigation bar and 
+ * integrates various FAQ-related components such as NavBarFAQ, FAQItem, and Search.
+ * 
+ * Key features:
+ * - Displays a predefined list of FAQs covering common user inquiries.
+ * - Search functionality that filters FAQs based on user input, showing relevant questions and answers.
+ * - Responsive design, with the content styled to fit within a visually appealing layout.
+ * - Custom handling for empty search results, providing feedback when no matches are found.
+ */
 
+// Import necessary libraries and components
+"use client";
 import React, { useState } from 'react';
 import NavBarFAQ from '@/components/FAQComponents/navBarFAQ';
 import FAQItem from '@/components/FAQComponents/FAQItem';
